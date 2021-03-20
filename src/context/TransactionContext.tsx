@@ -1,8 +1,20 @@
-import { createContext, ReactNode, useEffect, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { api } from '../services/api';
 
-export const TransactionContext = createContext<ITrasanctionTable[]>([]);
+interface ITransactionContextData {
+  transactions: ITrasanctionTable[];
+  createTransaction: (transaction: ITransactionInput) => void;
+}
 
+export const TransactionContext = createContext<ITransactionContextData>(
+  {} as ITransactionContextData,
+);
 interface ITrasanctionTable {
   id: string;
   title: string;
@@ -12,6 +24,14 @@ interface ITrasanctionTable {
   createdAt: Date;
 }
 
+// interface ITransactionInput {
+//   title: string;
+//   value: number;
+//   category: string;
+//   type: string;
+// }
+
+type ITransactionInput = Omit<ITrasanctionTable, 'id' | 'createdAt'>;
 interface ITransactionProviderProps {
   children: ReactNode;
 }
@@ -27,8 +47,24 @@ export function TransactionProvider({ children }: ITransactionProviderProps) {
     getTransaction();
   }, []);
 
+  const createTransaction = useCallback(
+    async (transaction: ITransactionInput) => {
+      try {
+        await api.post('transactions', transaction);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [],
+  );
+
   return (
-    <TransactionContext.Provider value={transactions}>
+    <TransactionContext.Provider
+      value={{
+        transactions,
+        createTransaction,
+      }}
+    >
       {children}
     </TransactionContext.Provider>
   );
