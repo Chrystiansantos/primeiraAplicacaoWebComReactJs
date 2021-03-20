@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { NewTransactionModal } from './components/NewTransactionModal';
-import { TransactionContext } from './context/TransactionContext';
+import { TransactionProvider } from './context/TransactionContext';
 
 Modal.setAppElement('#root');
 
@@ -21,13 +21,13 @@ export function App() {
     setIsNewTransactionModalOpen(false);
   }, []);
   return (
-    <TransactionContext.Provider value={[]}>
+    <TransactionProvider>
       <Header onOpenNewTransactionModal={handleOpenNewTransactionModal} />
       <Dashboard />
       <NewTransactionModal
         isOpen={isNewTransactionModalOpen}
         onRequestClose={handleCloseNewTransactionModal}
       />
-    </TransactionContext.Provider>
+    </TransactionProvider>
   );
 }
