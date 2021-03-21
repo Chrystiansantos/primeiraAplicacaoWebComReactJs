@@ -9,7 +9,7 @@ import { api } from '../services/api';
 
 interface ITransactionContextData {
   transactions: ITrasanctionTable[];
-  createTransaction: (transaction: ITransactionInput) => void;
+  createTransaction: (transaction: ITransactionInput) => Promise<void>;
 }
 
 export const TransactionContext = createContext<ITransactionContextData>(
@@ -48,9 +48,15 @@ export function TransactionProvider({ children }: ITransactionProviderProps) {
   }, []);
 
   const createTransaction = useCallback(
-    async (transaction: ITransactionInput) => {
+    async (transactionInput: ITransactionInput) => {
       try {
-        await api.post('transactions', transaction);
+        const { data } = await api.post('transactions', {
+          ...transactionInput,
+          createdAt: new Date(),
+        });
+        const { transaction } = data;
+
+        setTransactions([...transactions, transaction]);
       } catch (error) {
         console.log(error);
       }
